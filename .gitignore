@@ -66,7 +66,11 @@ docs/_build/
 # PyBuilder
 target/
 
+<<<<<<< HEAD
 # Jupyter Notebook
+=======
+# IPython Notebook
+>>>>>>> 59e7d64d8d436bc04ebb944ed963a90c9ce81e9c
 .ipynb_checkpoints
 
 # pyenv
@@ -79,7 +83,10 @@ celerybeat-schedule
 .env
 
 # virtualenv
+<<<<<<< HEAD
 .venv/
+=======
+>>>>>>> 59e7d64d8d436bc04ebb944ed963a90c9ce81e9c
 venv/
 ENV/
 
