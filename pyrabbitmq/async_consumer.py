@@ -23,7 +23,7 @@ class AsyncConsumer(object):
 
     """
 
-    def __init__(self, amqp_url, exchange, exchange_type, queue, routing_key, app_id = 'app_id.notset'):
+    def __init__(self, amqp_url, exchange, exchange_type, queue, routing_key, app_id = 'app_id.notset', comqueue=None):
         """Create a new instance of the consumer class, passing in the AMQP
         URL used to connect to RabbitMQ.
 
@@ -32,6 +32,7 @@ class AsyncConsumer(object):
         :param str exchange_type: Type of exchange. Ex: 'topic'
         :param str queue: Name of queue to bind to
         :param str routing_key: string for single routing key or list of strings for multiple routing keys
+        :param multiprocessing.Queue comqueue: multiprocessing.Queue instance used to communicate data outside of this process
         """
         self._connection = None
         self._channel = None
@@ -44,6 +45,7 @@ class AsyncConsumer(object):
         self.routing_key = routing_key
         self.is_consuming = False
 
+        self.comqueue = comqueue
         self.app_id = app_id
 
     def connect(self):
@@ -284,6 +286,11 @@ class AsyncConsumer(object):
         LOGGER.info('Received message # %s from %s: %s',
                     basic_deliver.delivery_tag, properties.app_id, body)
         self.acknowledge_message(basic_deliver.delivery_tag)
+        try:
+            self.comqueue.put((unused_channel, basic_deliver, properties, body))
+        except AttributeError:
+            LOGGER.info('Will not forward message because NO comqueue PASSED.')
+            pass
 
     def acknowledge_message(self, delivery_tag):
         """Acknowledge the message delivery from RabbitMQ by sending a
